@@ -5,7 +5,7 @@ Created on Fri Oct 02 10:41:35 2015
 @author: Jean-Louis Dinh
 """
 
-from . import concentration_table
+import concentration_table
 
 class Series_Concentration_Table(list):
     

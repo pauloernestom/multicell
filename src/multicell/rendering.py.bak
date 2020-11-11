@@ -115,8 +115,8 @@ class MatplotlibRenderer(object):
         facecolors = [sm.to_rgba(x) for x in face_values]
         
 #        poly_pids = [[pid for pid in topomesh_algo.ordered_pids(self.sim.mesh, fid)] for fid in outer_fids]
-        min_coords = np.min(list(self.sim.pos.values()), axis=0)
-        max_coords = np.max(list(self.sim.pos.values()), axis=0)
+        min_coords = np.min(self.sim.pos.values(), axis=0)
+        max_coords = np.max(self.sim.pos.values(), axis=0)
         if self.view_size is not None:
             max_half_amplitude = self.view_size / 2
         else:
@@ -131,7 +131,7 @@ class MatplotlibRenderer(object):
             original_pos = [self.sim.pos[pid] for pid in ordered_pids]
             cid = (set(self.sim.mesh.regions(2, fid)) & non_clipped_cids).pop()
             bary = centroid(self.sim.mesh, self.sim.get_pos(), 3, cid)
-            shrinked_pos = [original_pos[i] + (shrinkage * border_vector(original_pos[i], original_pos[(i+1)%len(ordered_pids)], bary)) for i in range(len(ordered_pids))]
+            shrinked_pos = [original_pos[i] + (shrinkage * border_vector(original_pos[i], original_pos[(i+1)%len(ordered_pids)], bary)) for i in xrange(len(ordered_pids))]
             polys.append(shrinked_pos)
 #            polys.append(original_pos)
         for eid in cell_delimiting_eids:
@@ -230,10 +230,10 @@ class MatplotlibRenderer(object):
         
         max_cmap = self._render(name, save=save, max_percentile=max_percentile)
         print_flush("Time point: %s" % self.sim.current_t)       
-        if name != None:
+        if name <> None:
             environment = self.sim.compute_environment()
             for s in self.sim.intensive_cell_variables:
                 concs = environment[s][0]
                 print_flush("%s: from %s to %s" % (s, min(concs), max(concs)))
-        if max_percentile != None:
+        if max_percentile <> None:
             print_flush("Max value displayed for %s: %s" % (name, max_cmap))

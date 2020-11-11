@@ -24,7 +24,7 @@ class SimulationPTM(multicell.simulation.Simulation):
         time_start = time.time()
         print_flush("Topomesh importation: started")
         self.set_mesh(mesh)
-        pos = list(self.get_pos().values())
+        pos = self.get_pos().values()
         self.set_pos(pos - np.mean(pos, axis=0))
         self.initialize_mesh_properties()
         print_flush("Topomesh importation: finished (%.2f s)" % (time.time() - time_start))
@@ -39,10 +39,10 @@ class SimulationPTM(multicell.simulation.Simulation):
             # Dirty but necessary in the current version of openalea
             ptm = copy.deepcopy(mesh)
             ptm.__class__ = property_topomesh.PropertyTopomesh
-            ptm._wisp_properties = [{} for d in range(degree+1)]
-            ptm._interface_properties = [{} for d in range(degree+1)]
+            ptm._wisp_properties = [{} for d in xrange(degree+1)]
+            ptm._interface_properties = [{} for d in xrange(degree+1)]
             ptm._topomesh_properties= {}
-            ptm._interface = [None] + [IdDict(idgenerator="set") for i in range(degree)]
+            ptm._interface = [None] + [IdDict(idgenerator="set") for i in xrange(degree)]
 
             self.mesh = ptm #property_topomesh.PropertyTopomesh(3, mesh)
     
@@ -51,7 +51,7 @@ class SimulationPTM(multicell.simulation.Simulation):
         
     def set_pos(self, pos):
         self.mesh.update_wisp_property("barycenter", 0, pos)
-        for degree in range(1, 4):
+        for degree in xrange(1, 4):
             self.mesh._wisp_properties[degree].clear()
         self.computed = set()
     

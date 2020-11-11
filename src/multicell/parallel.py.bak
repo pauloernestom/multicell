@@ -74,8 +74,8 @@ class SimulationMultiprocessing(multicell.simulation_ptm.SimulationPTM):
         self.sort_cids()
     
     def sort_cids(self, axis=0, n_bins=4):
-        cids = list(self.get_barycenters().keys())
-        barycenters = list(self.get_barycenters().values())
+        cids = self.get_barycenters().keys()
+        barycenters = self.get_barycenters().values()
         percentile_cut_offs = np.linspace(0, 100, n_bins + 1)
         cut_offs = [np.percentile(barycenters[:, axis], x) for x in percentile_cut_offs]
         cut_offs[-1] += 1
@@ -84,13 +84,13 @@ class SimulationMultiprocessing(multicell.simulation_ptm.SimulationPTM):
         
         bins = []
         n_sub_bins = 3 * n_bins - 2
-        for i in range(n_sub_bins):
+        for i in xrange(n_sub_bins):
             bins.append(set())
             if i % 3 == 0:
                 bins[i].update(cids[associated_bins == i / 3])
         
         try:        
-            for i in range(0, n_sub_bins - 3, 3):
+            for i in xrange(0, n_sub_bins - 3, 3):
                 for cid in bins[i]:
                     for ocid in self.mesh.border_neighbors(3, cid):
                         if ocid in bins[i + 3]:
@@ -100,7 +100,7 @@ class SimulationMultiprocessing(multicell.simulation_ptm.SimulationPTM):
         except KeyError:
             raise KeyError("Slicing too thin. Decrease the number of bins or change slicing axis.")
 
-        for i in range(1, n_sub_bins - 2, 3):
+        for i in xrange(1, n_sub_bins - 2, 3):
             bins[i - 1].difference_update(bins[i])
             bins[i + 2].difference_update(bins[i + 1])
                     
@@ -108,7 +108,7 @@ class SimulationMultiprocessing(multicell.simulation_ptm.SimulationPTM):
         associated_sub_bins = np.array(list(itertools.chain(*[[i] * len(b) for i,b in enumerate(bins)])))
         
         order = np.argsort(associated_sub_bins)
-        print(len(associated_sub_bins), len(cids))
+        print len(associated_sub_bins), len(cids)
         assert len(associated_sub_bins) == len(cids)
         self.cids = cids[order]
         self.bins = associated_sub_bins[order]
@@ -145,8 +145,8 @@ class SimulationMultiprocessing(multicell.simulation_ptm.SimulationPTM):
 #            cids[bin_].update(self.mesh.border_neighbors(3, cid))
         
         n_sub_bins = 3 * self.n_bins - 2
-        cids = [self.cids[np.logical_and(i - 2 <= self.bins, self.bins<= i + 2)] for i in range(0, n_sub_bins, 3)]
-        inner_cids = [self.cids[np.logical_and(i - 1 <= self.bins, self.bins<= i + 1)] for i in range(0, n_sub_bins, 3)]
+        cids = [self.cids[np.logical_and(i - 2 <= self.bins, self.bins<= i + 2)] for i in xrange(0, n_sub_bins, 3)]
+        inner_cids = [self.cids[np.logical_and(i - 1 <= self.bins, self.bins<= i + 1)] for i in xrange(0, n_sub_bins, 3)]
 #        print self.bins
 #        print cids
 #        print inner_cids
@@ -166,7 +166,7 @@ class SimulationMultiprocessing(multicell.simulation_ptm.SimulationPTM):
             
             # multiprocessing
             
-            pool.map(work, [(t, cids[i], inner_cids[i]) for i in range(self.n_bins)])
+            pool.map(work, [(t, cids[i], inner_cids[i]) for i in xrange(self.n_bins)])
 #            print dydt
 #            pool.join()
             
@@ -192,7 +192,7 @@ class SimulationMultiprocessing(multicell.simulation_ptm.SimulationPTM):
         self.variable_split_axes = dic
         
     def split(self, name, value, default_slice):
-        if name in list(sim.variable_split_axes.keys()):
+        if name in sim.variable_split_axes.keys():
             slice_ = tuple([default_slice if x else slice(None) for x in sim.variable_split_axes[name]])
 #            print value.shape, slice_
             res = value[slice_]
@@ -230,11 +230,11 @@ def work(arg_vector):
         environment["math"] = math
         
         split_constants = {}
-        for name, value in list(sim.parameters.items()):
+        for name, value in sim.parameters.items():
             split_constants[name] = sim.split(name, value, slice_cids)
         environment.update(split_constants)
         
-        for name, expression in list(sim.intermediary_variables.items()):
+        for name, expression in sim.intermediary_variables.items():
             environment[name] = eval(expression, environment)
             
         environment.update({"diffusion": multicell.simulation.diffusion,
@@ -245,7 +245,7 @@ def work(arg_vector):
             eval_result = eval(sim.derivative_components[name], environment)
             if not isinstance(eval_result, np.ndarray):
                 eval_result = np.full(len(cids), eval_result, dtype=ctypes.c_double)
-            elif eval_result.shape != (len(cids),):
+            elif eval_result.shape <> (len(cids),):
                 eval_result *= np.ones(len(cids))
             dydt_local.set_species(name, eval_result[slice_inner_cids])
 #    return eval_result

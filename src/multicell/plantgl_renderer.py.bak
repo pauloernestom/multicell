@@ -53,7 +53,7 @@ class PlantGLRenderer():
             else:
                 max_cmap = np.percentile(array, max_percentile)
                 array = np.where(array <= max_cmap, array, max_cmap * np.ones(array.shape))
-        prop = dict(list(zip(self.sim.cids, array)))
+        prop = dict(zip(self.sim.cids, array))
         scene = Scene()
         scene += (guillaume
                     .topomesh_display
@@ -87,7 +87,7 @@ class PlantGLRenderer():
         """
         
         max_cmap = self._render(name, save=save, max_percentile=max_percentile)
-        if name != None:
+        if name <> None:
             for s in self.sim.names_species:
                 concs = self.sim.y.get_species(s) / self.sim.dilution_volumes.as_1d_array()
                 print_flush("%s: from %s to %s" % (s, min(concs), max(concs)))

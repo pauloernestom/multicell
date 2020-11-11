@@ -154,7 +154,7 @@ def parse_for_dependencies(functions, keys):
         Dictionary (entity -> list of entities it depends on).
     """
     
-    return dict(list(zip(keys, [inspect.getargspec(functions[k])[0] for k in keys])))
+    return dict(zip(keys, [inspect.getargspec(functions[k])[0] for k in keys]))
 
 def null_function(*args, **kwargs):
     return 0.
@@ -399,14 +399,14 @@ class Simulation(object):
         self.adjacency_matrices_specs[name] = cids_function
     
     def compute_adjacency_matrices(self):
-        for name, cids_function in list(self.adjacency_matrices_specs.items()):
+        for name, cids_function in self.adjacency_matrices_specs.items():
             self.adjacency_matrices[name] = self.compute_generic_adjacency_matrix(cids_function)
     
     def _transport(self, function, coeff, values, adjacency_matrix, degree=1, *args, **kwargs):
         if self.detection_mode:
             assert len(values.variables_list) == 1
             name = values.variables_list[0]
-            self.add_adjacency_matrix(name, sum([adjacency_matrix ** d for d in range(1, degree+1)]))
+            self.add_adjacency_matrix(name, sum([adjacency_matrix ** d for d in xrange(1, degree+1)]))
         return function(coeff, values, adjacency_matrix, *args, **kwargs)
     
     def diffusion(self, D, values, adjacency_matrix):
@@ -443,8 +443,8 @@ class Simulation(object):
                 JPat[i*n_cells:(i+1)*n_cells, i*n_cells:(i+1)*n_cells] = matrix
             
         # Cell-autonomous effects
-        for i in range(n_species):
-            for k in range(n_cells):
+        for i in xrange(n_species):
+            for k in xrange(n_cells):
                 for j in [self.names_species.index(effector) for effector in self.dependencies[self.names_species[i]] if effector in self.names_species]:
                     JPat[i*n_cells+k, j*n_cells+k] = 1.
                     
@@ -552,7 +552,7 @@ class Simulation(object):
         Deprecated.
         """
         
-        if not hasattr(self, "y") or len(self.y) < 1 or self.y.current().shape != (self.n_species, self.n_cells):
+        if not hasattr(self, "y") or len(self.y) < 1 or self.y.current().shape <> (self.n_species, self.n_cells):
             self.y = series_concentration_table.Series_Concentration_Table()
             self.y.append_new_table(self.names_species, self.cids)
             
@@ -568,7 +568,7 @@ class Simulation(object):
         0.
         """
         
-        if not hasattr(self, "y") or self.y is None or len(self.y) < 1 or self.y.current().shape != (self.n_species, self.n_cells):
+        if not hasattr(self, "y") or self.y is None or len(self.y) < 1 or self.y.current().shape <> (self.n_species, self.n_cells):
             self.y = series_concentration_table.Series_Concentration_Table()
             self.y.append_new_table(self.names_species, self.cids)
     
@@ -600,14 +600,14 @@ class Simulation(object):
         """
         
         dependencies = parse_for_dependencies(self.ODEs, self.names_species)
-        indirect_dependencies = parse_for_dependencies(self.intermediary_variables, list(self.intermediary_variables.keys()))
+        indirect_dependencies = parse_for_dependencies(self.intermediary_variables, self.intermediary_variables.keys())
         new_dependencies = {}
         
-        while new_dependencies != dependencies:
+        while new_dependencies <> dependencies:
             new_dependencies = dependencies
             for target in self.names_species:
                 for (i_regulator, regulator) in enumerate(dependencies[target]):
-                    if regulator in list(self.intermediary_variables.keys()):
+                    if regulator in self.intermediary_variables.keys():
                         new_dependencies[target].pop(i_regulator)
                         new_dependencies[target] += indirect_dependencies[regulator]
         
@@ -629,7 +629,7 @@ class Simulation(object):
         environment["t"] = t
         environment["simulation"] = self
         environment.update(self.parameters)
-        for name, function in list(self.intermediary_variables.items()):
+        for name, function in self.intermediary_variables.items():
             environment[name] = function(**restrict_environment(environment, function))
 #            environment[name].variables_list = [name]
 #            environment[name]._rebuild_cached_info()
@@ -699,7 +699,7 @@ class Simulation(object):
 #        elif self.t_scale == "log10":
 #            t = np.logspace(self.t[0], self.t[1], num=self.n_time_steps+1, base=10)
             
-        for i in range(self.n_time_steps):
+        for i in xrange(self.n_time_steps):
             if self.growth:
                 print_flush("Growth step #%s" % i)
                         
@@ -952,7 +952,7 @@ class Simulation(object):
             if self.division_trigger(self.mesh, self.get_pos(), cid, **self.division_trigger_parameters):
                 bary, axis = self.division_method(self.mesh, self.get_pos(), cid, **self.division_method_parameters)
                 list_divisions.append(self.cell_division(cid, bary, axis))
-        if list_divisions != []:
+        if list_divisions <> []:
             position = dict((cid, i) for (i, cid) in enumerate(self.cids))
             list_divisions = sorted(list_divisions, key=lambda x: position[x[0]])
             self.update_properties_after_divisions(list_divisions)

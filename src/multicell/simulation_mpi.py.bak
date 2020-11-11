@@ -26,4 +26,4 @@ class Simulation_MPI(Simulation):
         while not inter_comm.Iprobe(0, 0):
             time.sleep(0.01)    
         inter_comm.recv(None, 0, 0)
-        print(str(self.mpi_rank) + " received start signal from Sofameca")
+        print str(self.mpi_rank) + " received start signal from Sofameca"

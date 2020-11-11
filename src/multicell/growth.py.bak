@@ -28,6 +28,6 @@ def linear_growth(mesh, pos, coefficient):
     
     utilities.check_pos(pos)
     scaling = np.array(coefficient)
-    res = dict((pid, scaling * vec) for pid,vec in pos.items())
-    assert np.all(list(res.values()) != None)
+    res = dict((pid, scaling * vec) for pid,vec in pos.iteritems())
+    assert np.all(res.values() <> None)
     return res
