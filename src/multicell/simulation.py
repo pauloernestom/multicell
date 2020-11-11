@@ -375,7 +375,7 @@ class Simulation(object):
             for wid in self.mesh.borders(3, cid):
                 s = self.get_surface(wid)
                 for ocid in self.mesh.regions(2, wid):
-                    if ocid <> cid and ocid in cids:
+                    if ocid != cid and ocid in cids:
                         adjacency_matrix[self.dict_cids[cid], self.dict_cids[ocid]] += s
         return adjacency_matrix.tocsr()
     
