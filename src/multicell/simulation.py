@@ -865,7 +865,8 @@ class Simulation(object):
             for fid in self.mesh.regions(1,eid) :
                 if self.mesh.nb_regions(2,fid) == 1 :
                     return False
-    	return True
+                else:
+                    return True
     
     def is_external_edge(self, eid):
         """
